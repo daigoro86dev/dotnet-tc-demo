@@ -1,41 +1,15 @@
-﻿using Alba;
-using API;
-using DotNet.Testcontainers.Builders;
-using DotNet.Testcontainers.Configurations;
-using DotNet.Testcontainers.Containers;
-using RestSharp;
-using Xunit.Abstractions;
+﻿using API;
+using APITests.Utils;
+using Infrastructure.Data;
 
 namespace APITests.Tests;
 
-public class BaseTest : IAsyncLifetime
+public class BaseTest : IClassFixture<IntegrationTestFactory<Startup, StoreContext>>
 {
-    protected readonly RestClient _restClient;
-    protected readonly ITestOutputHelper _output;
-    protected IAlbaHost host;
+    protected readonly IntegrationTestFactory<Startup, StoreContext> _factory;
 
-
-    public BaseTest(ITestOutputHelper output)
+    public BaseTest(IntegrationTestFactory<Startup, StoreContext> factory)
     {
+        _factory = factory;
     }
-
-    protected readonly TestcontainerDatabase Testcontainer = new TestcontainersBuilder<PostgreSqlTestcontainer>()
-           .WithDatabase(new PostgreSqlTestcontainerConfiguration
-           {
-               Database = "postgres",
-               Username = "postgres",
-               Password = "postgres",
-           })
-           .Build();
-
-    public async Task InitializeAsync()
-    {
-        await Testcontainer.StartAsync();
-    }
-
-    public Task DisposeAsync()
-    {
-        return Testcontainer.DisposeAsync().AsTask();
-    }
-
 }

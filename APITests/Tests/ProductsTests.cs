@@ -6,20 +6,19 @@ using Newtonsoft.Json;
 
 namespace APITests.Tests;
 
-public class ProductsTests : IClassFixture<IntegrationTestFactory<Startup, StoreContext>>
+public class ProductsTests : BaseTest
 {
-    private readonly IntegrationTestFactory<Startup, StoreContext> _factory;
+    private readonly HttpClient _client;
 
-    public ProductsTests(IntegrationTestFactory<Startup, StoreContext> factory)
+    public ProductsTests(IntegrationTestFactory<Startup, StoreContext> factory) : base(factory)
     {
-        _factory = factory;
+        _client = _factory.CreateClient();
     }
 
     [Fact]
     public async Task Test_Get_Products()
     {
-        var client = _factory.CreateClient();
-        var response = await client.GetAsync("api/Products");
+        var response = await _client.GetAsync("api/Products");
 
         var responseBody = await response.Content.ReadAsStringAsync();
         List<Product> products = JsonConvert.DeserializeObject<List<Product>>(responseBody);
@@ -30,8 +29,7 @@ public class ProductsTests : IClassFixture<IntegrationTestFactory<Startup, Store
     [Fact]
     public async Task Test_Get_ProductById()
     {
-        var client = _factory.CreateClient();
-        var response = await client.GetAsync("api/Products/1");
+        var response = await _client.GetAsync("api/Products/1");
 
         var responseBody = await response.Content.ReadAsStringAsync();
         Product product = JsonConvert.DeserializeObject<Product>(responseBody);
